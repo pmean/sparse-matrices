@@ -1,0 +1,38 @@
+
+---
+title: "Sparse matrix examples"
+author: "Steve Simon"
+date: "Sunday, April 17, 2016"
+output: html_document
+---
+
+```{r start-clean}
+save.image("backup.RData")
+rm(list=ls())
+library("Matrix")
+```
+
+Set up a matrix where all the entries are zero, except for
+every power of 2.
+
+```{r simple sparse examples}
+nt <- 10
+nc <- 3
+v <- rep(0,2^nt)
+v[2^(0:nt)] <- 1
+m <- matrix(v, ncol=2^nc)
+print(m)
+str(m)
+object.size(m)
+s <- Matrix(v, ncol=2^nc)
+print(s)
+str(s)
+object.size(s)
+sum(m==s)
+```
+
+Save everything for possible later use.
+
+```{r save-everything}
+save.image("sparse.RData")
+```
