@@ -15,21 +15,74 @@ library("Matrix")
 Set up a matrix where all the entries are zero, except for
 every power of 2.
 
-```{r simple sparse examples}
-nt <- 10
+```{r create a simple matrix}
+nt <- 7
 nc <- 3
 v <- rep(0,2^nt)
 v[2^(0:nt)] <- 1
 m <- matrix(v, ncol=2^nc)
 print(m)
 str(m)
-object.size(m)
+```
+
+This is a regular matrix with `r 2^nt` entries arranged in
+`r 2^(nt-nc)` rows and `r 2^nc` columns. Exactly `r nt+1`
+values are non-zero. A regular matrix of this size takes 
+up `r object.size(m)` bytes.
+
+A sparse matrix is a matrix that only stores the non-zero values
+and their locations. If the matrix is very large and most of
+the values are zero, then you can represent even a very very large
+matrix as a sparse matrix without exceeding the memory limits of R.
+
+To create a sparse matrix, you need a special library. The one 
+you see here, Matrix, is a popular one that is supported
+by (among other things) the glmnet package.
+
+To create a sparse matrix, use the Matrix function instead of
+the matrix function.
+
+```{r create sparse matrix}
 s <- Matrix(v, ncol=2^nc)
 print(s)
 str(s)
+```
+
+The sparse matrix is stored as an S4 object. The pieces of the S4
+object are a bit tricky to interpret. The values stored in  i: `r s@i`
+tell you which rows the non-zero values are stored in. The trick here
+is that Matrix adopts the convention of C++ and many other languages
+that the first row (and the first column) of a matrix start at zero.
+In R, the first row (and the first column) of a matrix starts at one.
+
+There are some good reasons why you might prefer the C++ numbering convention
+and some good reasons why you might prefer the R numbering convention. If it
+helps, you can list the rows in R format by adding one: `r s@i+1`.
+
+You can use the dimnames funtion to label the rows and columns of s in the C++
+numbering convention.
+
+```{r relabel sparse matrix}
+dimnames(s) <- list(0:(2^(nt-nc)-1), 0:(2^nc-1))
+s
+```
+
+Now knowing which row is only half the battle. You also need to know which column.
+The columns are designated by a pointer stored in p: `r s@p`. Pointers are 
+commonly used in C++, but are an alien concept to most R programmers (or maybe
+just this R programmer).
+
+The first two pointers: `r s@p[1:2]` tell you that the rows listed in i, starting
+at the `r s@p[1]` location and going up to but not including the `r s@p[2]` position
+are rows in the first column. Remember that Matrix, like C++, starts counting at 0,
+not 1. So the first column has entries in the following rows: `r s@i[(s@p[1]+1):s@p[2]]`.
+
+```{r examine sparse matrix}
 object.size(s)
 sum(m==s)
 ```
+
+The sparse matrix takes up `r object.size(s)` bytes.
 
 Save everything for possible later use.
 
