@@ -90,7 +90,15 @@ You can use the rep function to compute the column indices that go with the row 
 
 ```{r calculate column indices}
 j <- rep(0:(2^nc-1), diff(s@p))
-print(cbind(s@i,j))
+print(data.frame(i=s@i, j))
+```
+
+You can create a sparse matrix by specifying the non-zero rows and columns.
+
+```{r specify rows and columns}
+row.indices <- s@i+1
+col.indices <- j+1
+sparseMatrix(i=row.indices, j=col.indices, dims=c(2^nt-nc, 2^nc))
 ```
 
 The values stored in x: `r s@x` are all ones because in this example, all the non-zero entries are one.
