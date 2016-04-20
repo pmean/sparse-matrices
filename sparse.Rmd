@@ -77,6 +77,27 @@ at the `r s@p[1]` location and going up to but not including the `r s@p[2]` posi
 are rows in the first column. Remember that Matrix, like C++, starts counting at 0,
 not 1. So the first column has entries in the following rows: `r s@i[(s@p[1]+1):s@p[2]]`.
 
+The second and third pointers: `r s@p[2:3]` tell you that the fifth row position: `r s@i[s@p[2]+1]`
+is in the second column. Since the third and the third pointers: `r s@p[3:4]` are the same, there
+are no non-zero entries in the third row.
+
+Are you confused by all this? I know I am. The help file, though, has a nice hint. Calculate the
+difference between successive pointer values: `r diff(s@p)`. This will tell you that the first 
+column has `r diff(s@p)[1]` entries, the second column has `r diff(s@p)[2]` entry, the third
+column has `r diff(s@p)[3]` entries and so forth.
+
+You can use the rep function to compute the column indices that go with the row indices.
+
+```{r calculate column indices}
+j <- rep(0:(2^nc-1), diff(s@p))
+print(cbind(s@i,j))
+```
+
+The values stored in x: `r s@x` are all ones because in this example, all the non-zero entries are one.
+That's not always the case, which is why the sparse matrix stores the individual non-zero values. 
+This is a pattern matrix, a sparse matrix where all the values are either zero or one (mostly zeros,
+of course, or the matrix isn't sparse). You might be able to improve slightly on 
+
 ```{r examine sparse matrix}
 object.size(s)
 sum(m==s)
