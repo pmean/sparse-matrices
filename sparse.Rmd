@@ -11,13 +11,50 @@ save.image("backup.RData")
 rm(list=ls())
 library("Matrix")
 library("knitr")
+<<<<<<< HEAD
 opts_current$get()$label
+=======
+knit_hooks$set(timer = function(before, options, envir) {
+  if (before) {
+    current_time <<- Sys.time()
+  }
+  else {
+    elapsed_time <- Sys.time() - current_time
+    elapsed_message <- paste(round(elapsed_time, 1), attr(elapsed_time, "units"))
+    message(elapsed_message)
+    m <- paste("Chunk", options$label, "used", elapsed_message, "\n")
+    if (exists("timing_log")) {
+      timing_log <<- paste(timing_log, m, sep="\n")
+    } else {
+      timing_log <<- m
+    }
+    return(timing_log)
+  }
+})
+timer <- function(initialize=FALSE) {
+  if (initialize) {
+    tm <<- Sys.time()
+    cat("\n\nProgram started:", as.character(tm), "\n", sep="")
+    return(invisible(tm))
+  }
+  tm <<- c(tm, Sys.time())
+  n <- length(tm)
+  et <- round(tm[n] - tm[n-1])
+  es <- paste(et, attr(et, "units"))
+  cat("\n\nProgram time:", es)
+  return(invisible(tm))
+}
+tst1 <- timer(TRUE)
+tst2 <- timer()
+tst3 <- timer() 
+>>>>>>> 04b625232b29b2641947a294d69c549f05816133
 ```
 
 Set up a matrix where all the entries are zero, except for
 every power of 2.
 
-```{r create a simple matrix}
+```{r create a simple matrix, message=TRUE, timer=TRUE}
+message("Test 1")
 nt <- 7
 nc <- 3
 v <- rep(0,2^nt)
@@ -29,8 +66,7 @@ str(m)
 
 This is a regular matrix with `r 2^nt` entries arranged in
 `r 2^(nt-nc)` rows and `r 2^nc` columns. Exactly `r nt+1`
-values are non-zero. A regular matrix of this size takes 
-up `r object.size(m)` bytes.
+values are non-zero. 
 
 A sparse matrix is a matrix that only stores the non-zero values
 and their locations. If the matrix is very large and most of
@@ -44,7 +80,8 @@ by (among other things) the glmnet package.
 To create a sparse matrix, use the Matrix function instead of
 the matrix function.
 
-```{r create sparse matrix}
+```{r create sparse matrix, message=FALSE, timer=TRUE}
+message("Test 2")
 s <- Matrix(v, ncol=2^nc)
 print(s)
 str(s)
@@ -64,7 +101,7 @@ helps, you can list the rows in R format by adding one: `r s@i+1`.
 You can use the dimnames funtion to label the rows and columns of s in the C++
 numbering convention.
 
-```{r relabel sparse matrix}
+```{r relabel sparse matrix, timer=TRUE}
 dimnames(s) <- list(0:(2^(nt-nc)-1), 0:(2^nc-1))
 s
 ```
@@ -90,17 +127,17 @@ column has `r diff(s@p)[3]` entries and so forth.
 
 You can use the rep function to compute the column indices that go with the row indices.
 
-```{r calculate column indices}
+```{r calculate column indices, timer=TRUE}
 j <- rep(0:(2^nc-1), diff(s@p))
 print(data.frame(i=s@i, j))
 ```
 
 You can create a sparse matrix by specifying the non-zero rows and columns.
 
-```{r specify rows and columns}
+```{r specify rows and columns, timer=TRUE}
 row.indices <- s@i+1
 col.indices <- j+1
-sparseMatrix(i=row.indices, j=col.indices, dims=c(2^nt-nc, 2^nc))
+sparseMatrix(i=row.indices, j=col.indices, dims=c(2^(nt-nc), 2^nc), x=1)
 ```
 
 The values stored in x: `r s@x` are all ones because in this example, all the non-zero entries are one.
@@ -108,15 +145,24 @@ That's not always the case, which is why the sparse matrix stores the individual
 This is a pattern matrix, a sparse matrix where all the values are either zero or one (mostly zeros,
 of course, or the matrix isn't sparse). You might be able to improve slightly on 
 
-```{r examine sparse matrix}
-object.size(s)
-sum(m==s)
-```
+The regular matrix takes up `r object.size(m)` bytes. The sparse matrix takes up `r object.size(s)` bytes. That seems odd,
+but the sparse matrix format only makes sense when the matrices get really really large.
 
-The sparse matrix takes up `r object.size(s)` bytes.
+```{r examine sparse matrix, timer=TRUE}
+for (i in 1:5) {
+  nt <- 7+3*i
+  nc <- 3+i
+  v <- rep(0,2^nt)
+  v[2^(0:nt)] <- 1
+  m <- matrix(v, ncol=2^nc)
+  s <- Matrix(v, ncol=2^nc)
+  cat("\n\nA regular", 2^(nt-nc), "by", 2^nc, "matrix requires", object.size(m), "bytes.")
+  cat("\nA sparse", 2^(nt-nc), "by", 2^nc, "matrix requires", object.size(s), "bytes.")
+}
+```
 
 Save everything for possible later use.
 
-```{r save-everything}
+```{r save-everything, timer=TRUE}
 save.image("sparse.RData")
 ```
