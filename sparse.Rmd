@@ -10,6 +10,8 @@ output: html_document
 save.image("backup.RData")
 rm(list=ls())
 library("Matrix")
+library("knitr")
+opts_current$get()$label
 ```
 
 Set up a matrix where all the entries are zero, except for
