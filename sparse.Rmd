@@ -11,9 +11,6 @@ save.image("backup.RData")
 rm(list=ls())
 library("Matrix")
 library("knitr")
-<<<<<<< HEAD
-opts_current$get()$label
-=======
 knit_hooks$set(timer = function(before, options, envir) {
   if (before) {
     current_time <<- Sys.time()
@@ -31,23 +28,6 @@ knit_hooks$set(timer = function(before, options, envir) {
     return(timing_log)
   }
 })
-timer <- function(initialize=FALSE) {
-  if (initialize) {
-    tm <<- Sys.time()
-    cat("\n\nProgram started:", as.character(tm), "\n", sep="")
-    return(invisible(tm))
-  }
-  tm <<- c(tm, Sys.time())
-  n <- length(tm)
-  et <- round(tm[n] - tm[n-1])
-  es <- paste(et, attr(et, "units"))
-  cat("\n\nProgram time:", es)
-  return(invisible(tm))
-}
-tst1 <- timer(TRUE)
-tst2 <- timer()
-tst3 <- timer() 
->>>>>>> 04b625232b29b2641947a294d69c549f05816133
 ```
 
 Set up a matrix where all the entries are zero, except for
