@@ -12,29 +12,12 @@ save.image("backup.RData")
 rm(list=ls())
 library("Matrix")
 library("knitr")
-knit_hooks$set(timer = function(before, options, envir) {
-  if (before) {
-    current_time <<- Sys.time()
-  }
-  else {
-    elapsed_time <- Sys.time() - current_time
-    elapsed_message <- paste(round(elapsed_time, 1), attr(elapsed_time, "units"))
-    message(elapsed_message)
-    m <- paste("Chunk", options$label, "used", elapsed_message, "\n")
-    if (exists("timing_log")) {
-      timing_log <<- paste(timing_log, m, sep="\n")
-    } else {
-      timing_log <<- m
-    }
-    return(timing_log)
-  }
-})
 ```
 
 Set up a matrix where all the entries are zero, except for
 every power of 2.
 
-```{r create a simple matrix, message=TRUE, timer=TRUE}
+```{r create a simple matrix, message=TRUE}
 message("Test 1")
 nt <- 7
 nc <- 3
@@ -61,7 +44,7 @@ by (among other things) the glmnet package.
 To create a sparse matrix, use the Matrix function instead of
 the matrix function.
 
-```{r create sparse matrix, message=FALSE, timer=TRUE}
+```{r create sparse matrix, message=FALSE}
 message("Test 2")
 s <- Matrix(v, ncol=2^nc)
 print(s)
@@ -82,7 +65,7 @@ helps, you can list the rows in R format by adding one: `r s@i+1`.
 You can use the dimnames funtion to label the rows and columns of s in the C++
 numbering convention.
 
-```{r relabel sparse matrix, timer=TRUE}
+```{r relabel sparse matrix}
 dimnames(s) <- list(0:(2^(nt-nc)-1), 0:(2^nc-1))
 s
 ```
@@ -108,14 +91,14 @@ column has `r diff(s@p)[3]` entries and so forth.
 
 You can use the rep function to compute the column indices that go with the row indices.
 
-```{r calculate column indices, timer=TRUE}
+```{r calculate column indices}
 j <- rep(0:(2^nc-1), diff(s@p))
 print(data.frame(i=s@i, j))
 ```
 
 You can create a sparse matrix by specifying the non-zero rows and columns.
 
-```{r specify rows and columns, timer=TRUE}
+```{r specify rows and columns}
 row.indices <- s@i+1
 col.indices <- j+1
 sparseMatrix(i=row.indices, j=col.indices, dims=c(2^(nt-nc), 2^nc), x=1)
@@ -129,7 +112,7 @@ of course, or the matrix isn't sparse). You might be able to improve slightly on
 The regular matrix takes up `r object.size(m)` bytes. The sparse matrix takes up `r object.size(s)` bytes. That seems odd,
 but the sparse matrix format only makes sense when the matrices get really really large.
 
-```{r examine sparse matrix, timer=TRUE}
+```{r examine sparse matrix}
 for (i in 1:5) {
   nt <- 7+3*i
   nc <- 3+i
@@ -144,6 +127,6 @@ for (i in 1:5) {
 
 Save everything for possible later use.
 
-```{r save-everything, timer=TRUE}
+```{r save-everything}
 save.image("sparse.RData")
 ```
