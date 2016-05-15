@@ -29,22 +29,6 @@ knit_hooks$set(timer = function(before, options, envir) {
     return(timing_log)
   }
 })
-timer <- function(initialize=FALSE) {
-  if (initialize) {
-    tm <<- Sys.time()
-    cat("\n\nProgram started:", as.character(tm), "\n", sep="")
-    return(invisible(tm))
-  }
-  tm <<- c(tm, Sys.time())
-  n <- length(tm)
-  et <- round(tm[n] - tm[n-1])
-  es <- paste(et, attr(et, "units"))
-  cat("\n\nProgram time:", es)
-  return(invisible(tm))
-}
-tst1 <- timer(TRUE)
-tst2 <- timer()
-tst3 <- timer() 
 ```
 
 Set up a matrix where all the entries are zero, except for
