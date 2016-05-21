@@ -15,7 +15,7 @@ library("knitr")
 ```
 
 Set up a matrix where all the entries are zero, except for
-every power of 2.
+every power of two.
 
 ```{r create a simple matrix, message=TRUE}
 message("Test 1")
